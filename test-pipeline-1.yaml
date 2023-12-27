@@ -13,7 +13,7 @@ steps:
 
 - script: echo "Running a sample script..."
   displayName: 'Run sample script'
-  bash: |
+- bash: |
    echo "This is a bash script"
    echo "It is running on the build server"
    echo "The build server hostname is $HOSTNAME"
@@ -23,7 +23,8 @@ steps:
    echo "The current shell is $SHELL"
    echo "The current path is $PATH"
    echo "The current date is $(date)"
-
+  displayName: 'Running a bash script'
+  
 - script: echo "Compiling code..."
   displayName: 'Compile code'
    # - script: |
