@@ -1,0 +1,43 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: echo "Starting the pipeline..."
+  displayName: 'Print start message'
+
+- script: echo "Hello World"
+  displayName: 'Print Hello World'
+
+- script: echo "Running a sample script..."
+  displayName: 'Run sample script'
+  # Here you can add any script that you want to run. For example:
+  # bash: |
+  #   echo "This is a bash script"
+  #   # Add other bash commands here
+
+- script: echo "Compiling code..."
+  displayName: 'Compile code'
+  # Here you would add the commands to compile your code. For example:
+  # - script: |
+  #     dotnet build MyProject.sln
+  #   displayName: 'Build .NET project'
+
+- script: echo "Running tests..."
+  displayName: 'Run tests'
+  # Here you would add the commands to run your tests. For example:
+  # - script: |
+  #     dotnet test MyProject.sln
+  #   displayName: 'Test .NET project'
+
+- script: echo "Deploying application..."
+  displayName: 'Deploy application'
+  # Here you would add the commands to deploy your application. For example:
+  # - script: |
+  #     az webapp up --name my-app-service --resource-group my-resource-group
+  #   displayName: 'Deploy to Azure App Service'
+
+- script: echo "Pipeline completed successfully."
+  displayName: 'Print completion message'
