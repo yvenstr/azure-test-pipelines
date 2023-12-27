@@ -7,9 +7,11 @@ pool:
 steps:
 - script: echo "Starting the pipeline..."
   displayName: 'Print start message'
+  continueOnError: true
 
 - script: echo "Hello World"
   displayName: 'Print Hello World'
+  continueOnError: true
 
 - script: echo "Running a sample script..."
   displayName: 'Run sample script'
@@ -24,7 +26,8 @@ steps:
    echo "The current path is $PATH"
    echo "The current date is $(date)"
   displayName: 'Running a bash script'
-  
+  continueOnError: true
+
 - script: echo "Compiling code..."
   displayName: 'Compile code'
    # - script: |

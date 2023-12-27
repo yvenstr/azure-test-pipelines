@@ -1,0 +1,19 @@
+name: 1.0.$(Rev:.r)
+
+
+trigger:
+  - main
+
+variables:
+  buildConfiguration: 'Release'
+  name: 'test-pipeline-2'
+  frase: 'Hello World'
+pool:
+  vmImage: 'ubuntu-latest'
+
+jobs:
+  - job: job1
+    steps:
+      - scriptt: echo "$(frase)"
+        displayName: 'Print Hello World'
+
