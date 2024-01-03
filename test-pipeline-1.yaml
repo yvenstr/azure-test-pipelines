@@ -24,8 +24,7 @@ steps:
    echo "The current operating system is $OSTYPE"
    echo "The current shell is $SHELL"
    echo "The current path is $PATH"
-   echo "The current date is $(date)"
-  displayName: 'Running a bash script'
+   echo "The current ing a bash script'
   continueOnError: true
 
 - script: echo "Compiling code..."
@@ -33,6 +32,10 @@ steps:
    # - script: |
    # dotnet build MyProject.sln --configuration Release  --no-restore   
   #displayName: 'Build .NET project'
+
+- script: python3 --version
+  displayName: 'Python version test'	
+  continueOnError: true
 
 - script: echo "Running tests..."
   displayName: 'Run tests'
@@ -49,3 +52,6 @@ steps:
 
 - script: echo "Pipeline completed successfully."
   displayName: 'Print completion message'
+
+
+

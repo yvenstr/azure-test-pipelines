@@ -11,9 +11,12 @@ variables:
 pool:
   vmImage: 'ubuntu-latest'
 
-jobs:
-  - job: job1
-    steps:
-      - scriptt: echo "$(frase)"
-        displayName: 'Print Hello World'
+stages:
+- stage: build
+
+  jobs:
+    - job: job1
+      steps:
+        - scriptt: echo "$(frase)"
+          displayName: 'Print Hello World'
 
