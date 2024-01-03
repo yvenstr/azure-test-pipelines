@@ -35,6 +35,7 @@ steps:
 
 - script: python3 --version
   displayName: 'Python version test'	
+  
   continueOnError: true
 
 - script: echo "Running tests..."
