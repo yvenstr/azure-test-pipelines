@@ -5,14 +5,14 @@ pool:
   vmImage: 'ubuntu-latest'
 
 
--jobs:
+jobs:
 - job: Job 1
 
 
   steps:
   - script: echo "Starting the pipeline..."
     displayName: 'Print start message'
-    continueOnError: true
+    continueOnError: False
 
   - script: echo "Hello World"
     displayName: 'Print Hello World'
