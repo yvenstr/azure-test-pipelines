@@ -20,17 +20,7 @@ jobs:
 
   - script: echo "Running a sample script..."
     displayName: 'Run sample script'
-  - bash: |
-    echo "This is a bash script"
-    echo "It is running on the build server"
-    echo "The build server hostname is $HOSTNAME"
-    echo "The current working directory is $PWD"
-    echo "The current user is $USER"
-    echo "The current operating system is $OSTYPE"
-    echo "The current shell is $SHELL"
-    echo "The current path is $PATH"
-    echo "The current ing a bash script'
-    continueOnError: true
+
 
   - script: echo "Compiling code..."
     displayName: 'Compile code'
