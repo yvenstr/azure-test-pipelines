@@ -7,8 +7,6 @@ pool:
 
 jobs:
 - job: Job 1
-
-
   steps:
   - script: echo "Starting the pipeline..."
     displayName: 'Print start message'
@@ -27,7 +25,9 @@ jobs:
     # - script: |
     # dotnet build MyProject.sln --configuration Release  --no-restore   
     #displayName: 'Build .NET project'
+
 - job: Job 2
+  dependsOn: Job1
   steps:
   - script: python3 --version
     displayName: 'Python version test'	
