@@ -4,55 +4,61 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-steps:
-- script: echo "Starting the pipeline..."
-  displayName: 'Print start message'
-  continueOnError: true
 
-- script: echo "Hello World"
-  displayName: 'Print Hello World'
-  continueOnError: true
+-jobs:
+- job: Job 1
 
-- script: echo "Running a sample script..."
-  displayName: 'Run sample script'
-- bash: |
-   echo "This is a bash script"
-   echo "It is running on the build server"
-   echo "The build server hostname is $HOSTNAME"
-   echo "The current working directory is $PWD"
-   echo "The current user is $USER"
-   echo "The current operating system is $OSTYPE"
-   echo "The current shell is $SHELL"
-   echo "The current path is $PATH"
-   echo "The current ing a bash script'
-  continueOnError: true
 
-- script: echo "Compiling code..."
-  displayName: 'Compile code'
-   # - script: |
-   # dotnet build MyProject.sln --configuration Release  --no-restore   
-  #displayName: 'Build .NET project'
+  steps:
+  - script: echo "Starting the pipeline..."
+    displayName: 'Print start message'
+    continueOnError: true
 
-- script: python3 --version
-  displayName: 'Python version test'	
+  - script: echo "Hello World"
+    displayName: 'Print Hello World'
+    continueOnError: true
+
+  - script: echo "Running a sample script..."
+    displayName: 'Run sample script'
+  - bash: |
+    echo "This is a bash script"
+    echo "It is running on the build server"
+    echo "The build server hostname is $HOSTNAME"
+    echo "The current working directory is $PWD"
+    echo "The current user is $USER"
+    echo "The current operating system is $OSTYPE"
+    echo "The current shell is $SHELL"
+    echo "The current path is $PATH"
+    echo "The current ing a bash script'
+    continueOnError: true
+
+  - script: echo "Compiling code..."
+    displayName: 'Compile code'
+    # - script: |
+    # dotnet build MyProject.sln --configuration Release  --no-restore   
+    #displayName: 'Build .NET project'
+- job: Job 2
+  steps:
+  - script: python3 --version
+    displayName: 'Python version test'	
+    
+    continueOnError: true
+
+  - script: echo "Running tests..."
+    displayName: 'Run tests'
+  #- script: |
+    #dotnet test MyProject.sln
+    #   displayName: 'Test .NET project'
+
+  - script: echo "Deploying application..."
+    displayName: 'Deploy application'
   
-  continueOnError: true
+    # - script: |
+    #     az webapp up --name my-app-service --resource-group my-resource-group
+    #   displayName: 'Deploy to Azure App Service'
 
-- script: echo "Running tests..."
-  displayName: 'Run tests'
-#- script: |
-   #dotnet test MyProject.sln
-  #   displayName: 'Test .NET project'
-
-- script: echo "Deploying application..."
-  displayName: 'Deploy application'
- 
-  # - script: |
-  #     az webapp up --name my-app-service --resource-group my-resource-group
-  #   displayName: 'Deploy to Azure App Service'
-
-- script: echo "Pipeline completed successfully."
-  displayName: 'Print completion message'
+  - script: echo "Pipeline completed successfully."
+    displayName: 'Print completion message'
 
 
 
