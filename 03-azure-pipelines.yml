@@ -13,8 +13,43 @@ strategy:
     mac:
         operatingSystem: 'macos-latest'
 
+ 
 pool:
   vmImage: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  jobs: 
+  - job: BuildJob
+    steps:
+    - bash: echo Hello, world!
+      displayName: 'Run a one-line script'
+    - script: |
+        echo Add other tasks to build, test, and deploy your project.
+        echo See https://aka.ms/yaml
+      displayName: 'Run a multi-line script'
+
+- stage: DevDeploy
+  jobs: 
+  - deployment: DevDeployJob
+    environment: Dev
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: echo Deploy to Dev
+
+- stage: QADeploy
+  jobs: 
+  - deployment: QADeploy
+    environment: QA
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: echo Deploy to QA
+
+
 
 
 
