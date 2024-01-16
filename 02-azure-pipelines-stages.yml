@@ -31,6 +31,10 @@ stages:
           TargetFolder: '$(Build.ArtifactStagingDirectory)'
      - bash: java -version
      - bash: python --version
+     - task: PublishBuildArtifacts@1
+       inputs:
+          pathToPublish: '$(Build.ArtifactStagingDirectory)'
+          artifactName: drop
    - job: SecondJob 
      steps:
      - bash: echo Second Job
