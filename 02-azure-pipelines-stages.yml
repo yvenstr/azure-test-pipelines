@@ -13,13 +13,24 @@ stages:
    jobs:
    - job: FirstJob
      steps:
+     
      - bash: echo Build FirstJob
+       displayName: 'Get all the necesery variables'
      - bash: echo Build $(PipelineLevelVariable)
      - bash: echo $(Build.BuildNumber)
      - bash: echo $(Build.BuildId)
      - bash: echo $(System.DefaultWorkingDirectory)
-     - bash: ls -R $(System.DefaultWorkingDirectory)
-     - bash: echo $(Build.ArtifactStagingDirectory)
+     - bash: ls -R $(System.DefaultWorkingDirectory) ## default working dir
+     - bash: echo $(Build.ArtifactStagingDirectory) ## staging direrectory
+     - task: CopyFiles@2
+       inputs:
+          SourceFolder: '$(System.DefaultWorkingDirectory)'
+          Contents: |
+            **/*.yaml
+            **/*.tf
+          TargetFolder: '$(Build.ArtifactStagingDirectory)'
+     - bash: java -version
+     - bash: python --version
    - job: SecondJob 
      steps:
      - bash: echo Second Job
