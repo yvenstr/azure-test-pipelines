@@ -7,7 +7,7 @@ data "aws_vpc" "default" {
   default = true
 }
 
-# Fetch all subnets within the default VPC
+
 data "aws_subnets" "default" {
   filter {
     name   = "vpc-id"
