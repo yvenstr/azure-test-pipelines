@@ -16,6 +16,8 @@ data "aws_subnets" "default" {
 }
 
 
+
+
 resource "aws_eks_cluster" "example" {
   name     = "my-cluster"
   role_arn = aws_iam_role.eks_cluster.arn
