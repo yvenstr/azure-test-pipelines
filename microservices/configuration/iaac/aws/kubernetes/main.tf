@@ -2,12 +2,25 @@ provider "aws" {
   region = "us-west-2"
 }
 
+# Fetch the default VPC
+data "aws_vpc" "default" {
+  default = true
+}
+
+# Fetch all subnets within the default VPC
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+}
+
 resource "aws_eks_cluster" "example" {
   name     = "my-cluster"
   role_arn = aws_iam_role.eks_cluster.arn
 
   vpc_config {
-    subnet_ids = [aws_subnet.example.id]
+    subnet_ids = [data.aws_subnets.default.ids[0]]
   }
 
   depends_on = [
@@ -47,7 +60,7 @@ resource "aws_eks_node_group" "example" {
   cluster_name    = aws_eks_cluster.example.name
   node_group_name = "my-cluster-node-group"
   node_role_arn   = aws_iam_role.eks_node.arn
-  subnet_ids      = [aws_subnet.example.id]
+  subnet_ids      = [data.aws_subnets.default.ids[0]]
 
   scaling_config {
     desired_size = 2
