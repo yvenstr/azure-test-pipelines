@@ -14,6 +14,10 @@ steps:
   displayName: 'Run a multi-line script'
   condition: 
 
+
+
+
+
 # init - backend
 
 - task: TerraformTaskV4@4
@@ -24,6 +28,15 @@ steps:
     backendServiceAWS: 'aws-for-terraform'
     backendAWSBucketName: 'terraform-backend-state-yvenstr-123'
     backendAWSKey: 'kubernetes-dev.tfstate'
+
+- script: |
+    terraform import aws_iam_role.eks_cluster my-cluster-eks-cluster-role
+    terraform import aws_iam_role.eks_node my-cluster-eks-node-group-role
+  displayName: 'Import IAM Roles'
+
+- script: |
+    terraform plan
+  displayName: 'Terraform Plan'
 
 - task: TerraformTaskV4@4
   inputs:
