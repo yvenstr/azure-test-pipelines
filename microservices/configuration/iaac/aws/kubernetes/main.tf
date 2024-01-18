@@ -1,86 +1,90 @@
-# aws --version
-# aws eks --region us-east-1 update-kubeconfig --name yvenstr-cluster
-# Uses default VPC and Subnet. Create Your Own VPC and Private Subnets for Prod Usage.
-# terraform-backend-state-yvenstr-123
-# AKIA4AHVNOD7OOO6T4KI
+provider "aws" {
+  region = "us-west-2"
+}
 
-## arn:aws:s3:::terraform-backend-state-yvenstr-123
-##   jS7nwFuoiqhHHf1Iffx7HUQoDV3f9orazDEjTrVz
+resource "aws_eks_cluster" "example" {
+  name     = "my-cluster"
+  role_arn = aws_iam_role.eks_cluster.arn
 
-
-
-terraform {
-  backend "s3" {
-    bucket = "mybucket"       # Will be overridden from build
-    key    = "path/to/my/key" # Will be overridden from build
-    region = "us-east-1"
+  vpc_config {
+    subnet_ids = [aws_subnet.example.id]
   }
-}
 
-resource "aws_default_vpc" "default" {
-
-}
-
-data "aws_subnet_ids" "subnets" {
-  vpc_id = aws_default_vpc.default.id
-}
-
-provider "kubernetes" {
-  host                   = data.aws_eks_cluster.cluster.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
-  token                  = data.aws_eks_cluster_auth.cluster.token
-  version                = "~> 2.12"
-}
-
-module "yvenstr-cluster" {
-  source          = "terraform-aws-modules/eks/aws"
-  cluster_name    = "yvenstr-cluster"
-  cluster_version = "1.14"
-  subnets         = ["subnet-03a58d7490c6ee564", "subnet-0e256abab875c99f6"]
-  #subnets = data.aws_subnet_ids.subnets.ids
-  vpc_id = aws_default_vpc.default.id
-
-  #vpc_id         = "vpc-1234556abcdef"
-
-  node_groups = [
-    {
-      instance_type    = "t2.micro"
-      max_capacity     = 3
-      desired_capacity = 2
-      min_capacity     = 1
-    }
+  depends_on = [
+    aws_iam_role_policy_attachment.eks_cluster_AmazonEKSClusterPolicy,
+    aws_iam_role_policy_attachment.eks_cluster_AmazonEKSVPCResourceController,
   ]
 }
 
-data "aws_eks_cluster" "cluster" {
-  name = module.yvenstr-cluster.cluster_id
+resource "aws_iam_role" "eks_cluster" {
+  name = "my-cluster-eks-cluster-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "eks.amazonaws.com"
+        },
+        Action = "sts:AssumeRole"
+      },
+    ]
+  })
 }
 
-data "aws_eks_cluster_auth" "cluster" {
-  name = module.yvenstr-cluster.cluster_id
+resource "aws_iam_role_policy_attachment" "eks_cluster_AmazonEKSClusterPolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+  role       = aws_iam_role.eks_cluster.name
 }
 
+resource "aws_iam_role_policy_attachment" "eks_cluster_AmazonEKSVPCResourceController" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
+  role       = aws_iam_role.eks_cluster.name
+}
 
-# We will use ServiceAccount to connect to K8S Cluster in CI/CD mode
-# ServiceAccount needs permissions to create deployments 
-# and services in default namespace
-resource "kubernetes_cluster_role_binding" "example" {
-  metadata {
-    name = "fabric8-rbac"
+resource "aws_eks_node_group" "example" {
+  cluster_name    = aws_eks_cluster.example.name
+  node_group_name = "my-cluster-node-group"
+  node_role_arn   = aws_iam_role.eks_node.arn
+  subnet_ids      = [aws_subnet.example.id]
+
+  scaling_config {
+    desired_size = 2
+    max_size     = 3
+    min_size     = 1
   }
-  role_ref {
-    api_group = "rbac.authorization.k8s.io"
-    kind      = "ClusterRole"
-    name      = "cluster-admin"
-  }
-  subject {
-    kind      = "ServiceAccount"
-    name      = "default"
-    namespace = "default"
-  }
 }
 
-# Needed to set the default region
-provider "aws" {
-  region = "us-east-1"
+resource "aws_iam_role" "eks_node" {
+  name = "my-cluster-eks-node-group-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        },
+        Action = "sts:AssumeRole"
+      },
+    ]
+  })
 }
+
+resource "aws_iam_role_policy_attachment" "eks_node_AmazonEKSWorkerNodePolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+  role       = aws_iam_role.eks_node.name
+}
+
+resource "aws_iam_role_policy_attachment" "eks_node_AmazonEKS_CNI_Policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+  role       = aws_iam_role.eks_node.name
+}
+
+resource "aws_iam_role_policy_attachment" "eks_node_AmazonEC2ContainerRegistryReadOnly" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = aws_iam_role.eks_node.name
+}
+
