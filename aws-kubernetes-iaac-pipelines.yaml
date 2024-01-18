@@ -20,7 +20,7 @@ steps:
 
 # init - backend
 
-- task: TerraformTaskV4@4
+- task: Terraform Init
   inputs:
     provider: 'aws'
     command: 'init'
@@ -29,15 +29,26 @@ steps:
     backendAWSBucketName: 'terraform-backend-state-yvenstr-123'
     backendAWSKey: 'kubernetes-dev.tfstate'
 
-- script: |
-    terraform import aws_iam_role.eks_cluster my-cluster-eks-cluster-role
-    terraform import aws_iam_role.eks_node my-cluster-eks-node-group-role
-  displayName: 'Import IAM Roles'
+- task: Terraform status
+  inputs:
+    provider: 'aws'
+    command: 'status'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/microservices/configuration/iaac/aws/kubernetes'
+    environmentServiceNameAWS: 'aws-for-terraform'
 
-- script: |
-    terraform plan
-  displayName: 'Terraform Plan'
+- task: Terraform import
+  inputs:
+    provider: 'aws'
+    command: 'import aws_iam_role.eks_cluster my-cluster-eks-cluster-role'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/microservices/configuration/iaac/aws/kubernetes'
+    environmentServiceNameAWS: 'aws-for-terraform'
 
+- task: Terraform import 2
+  inputs:
+    provider: 'aws'
+    command: 'import aws_iam_role.eks_node my-cluster-eks-node-group-role'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/microservices/configuration/iaac/aws/kubernetes'
+    environmentServiceNameAWS: 'aws-for-terraform'
 - task: TerraformTaskV4@4
   inputs:
     provider: 'aws'
@@ -45,7 +56,6 @@ steps:
     workingDirectory: '$(System.DefaultWorkingDirectory)/microservices/configuration/iaac/aws/kubernetes'
     environmentServiceNameAWS: 'aws-for-terraform'
   
-
 
 - task: TerraformTaskV4@4
   inputs:
