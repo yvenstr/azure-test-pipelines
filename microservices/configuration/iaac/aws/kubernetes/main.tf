@@ -30,7 +30,7 @@ data "aws_subnets" "default" {
 
 
 resource "aws_eks_cluster" "example" {
-  name     = "my-cluster"
+  name     = "my-cluster-for-testing-yvenstr"
   role_arn = aws_iam_role.eks_cluster.arn
 
   vpc_config {
@@ -77,7 +77,7 @@ resource "aws_eks_node_group" "example" {
   subnet_ids      = toset([data.aws_subnets.default.ids[0],data.aws_subnets.default.ids[1]])
 
   scaling_config {
-    desired_size = 5
+    desired_size = 3
     max_size     = 3
     min_size     = 1
   }
