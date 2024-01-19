@@ -8,11 +8,12 @@ variables:
   terraformVersion: 'latest'
   roleNameCluster: 'my-cluster-eks-cluster-role'
   roleNameNode: 'my-cluster-eks-node-group-role'
+  workingDirectory: '$(System.DefaultWorkingDirectory)/microservices/configuration/iaac/aws/kubernetes'
 
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+- script: echo EKS cluster with Terraform!
+  displayName: 'Run a test EKS terraform infrastructure'
 
 # init - backend
 
@@ -28,6 +29,7 @@ steps:
 
 - script: |
     echo "Importing existing AWS IAM Roles into Terraform State"
+    cd $(workingDirectory)
     terraform import aws_iam_role.eks_cluster $(roleNameCluster)
     terraform import aws_iam_role.eks_node $(roleNameNode)
   displayName: 'Terraform Import IAM Roles'
