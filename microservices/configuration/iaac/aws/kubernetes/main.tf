@@ -46,7 +46,7 @@ resource "aws_eks_cluster" "example" {
     aws_iam_role_policy_attachment.eks_cluster_AmazonEKSVPCResourceController,
   ]
 }
-resource "kubernetes_cluster_role_binding" "example" {
+resource "kubernetes_cluster_role_binding" "cluster_binding" {
   metadata {
     name = "fabric8-rbac"
   }
