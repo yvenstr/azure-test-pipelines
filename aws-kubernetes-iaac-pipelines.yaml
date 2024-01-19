@@ -26,25 +26,6 @@ steps:
     backendAWSBucketName: 'terraform-backend-state-yvenstr-123'
     backendAWSKey: 'kubernetes-dev.tfstate'
 
-- task: TerraformTaskV4@4
-  inputs:
-    provider: 'aws'
-    command: 'custom'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/microservices/configuration/iaac/aws/kubernetes'
-    customCommand: 'import'
-    commandOptions: 'aws_iam_role.eks_cluster $(roleNameCluster)'
-    outputTo: 'console'
-    environmentServiceNameAWS: 'aws-for-terraform'
-
-- task: TerraformTaskV4@4
-  inputs:
-    provider: 'aws'
-    command: 'custom'
-    customCommand: 'import'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/microservices/configuration/iaac/aws/kubernetes'
-    commandOptions: 'aws_iam_role.eks_node $(roleNameNode)'
-    outputTo: 'console'
-    environmentServiceNameAWS: 'aws-for-terraform'
 
 
 - task: TerraformTaskV4@4
