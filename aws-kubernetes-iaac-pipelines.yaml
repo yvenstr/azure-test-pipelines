@@ -26,13 +26,21 @@ steps:
     backendAWSBucketName: 'terraform-backend-state-yvenstr-123'
     backendAWSKey: 'kubernetes-dev.tfstate'
 
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'aws'
+    command: 'custom'
+    customCommand: 'import'
+    commandOptions: 'aws_iam_role.eks_cluster $(roleNameCluster)'
+    outputTo: 'console'
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'aws'
+    command: 'custom'
+    customCommand: 'import'
+    commandOptions: 'aws_iam_role.eks_node $(roleNameNode)'
+    outputTo: 'console'
 
-- script: |
-    echo "Importing existing AWS IAM Roles into Terraform State"
-    cd $(workingDirectory)
-    terraform import aws_iam_role.eks_cluster $(roleNameCluster)
-    terraform import aws_iam_role.eks_node $(roleNameNode)
-  displayName: 'Terraform Import IAM Roles'
 - task: TerraformTaskV4@4
   inputs:
     provider: 'aws'
