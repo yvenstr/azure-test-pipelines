@@ -4,19 +4,15 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
+variables:
+  terraformVersion: 'latest'
+  roleNameCluster: 'my-cluster-eks-cluster-role'
+  roleNameNode: 'my-cluster-eks-node-group-role'
+
+
 steps:
 - script: echo Hello, world!
   displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
-  condition: 
-
-
-
-
 
 # init - backend
 
@@ -30,7 +26,12 @@ steps:
     backendAWSKey: 'kubernetes-dev.tfstate'
 
 
-
+- script: |
+    echo "Importing existing AWS IAM Roles into Terraform State"
+    terraform import aws_iam_role.eks_cluster $(roleNameCluster)
+    terraform import aws_iam_role.eks_node $(roleNameNode)
+  condition: and(succeeded(), eq(variables['ImportRoles'], 'true'))
+  displayName: 'Terraform Import IAM Roles'
 - task: TerraformTaskV4@4
   inputs:
     provider: 'aws'
