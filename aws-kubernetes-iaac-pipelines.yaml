@@ -30,6 +30,7 @@ steps:
   inputs:
     provider: 'aws'
     command: 'custom'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/microservices/configuration/iaac/aws/kubernetes'
     customCommand: 'import'
     commandOptions: 'aws_iam_role.eks_cluster $(roleNameCluster)'
     outputTo: 'console'
@@ -40,6 +41,7 @@ steps:
     provider: 'aws'
     command: 'custom'
     customCommand: 'import'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/microservices/configuration/iaac/aws/kubernetes'
     commandOptions: 'aws_iam_role.eks_node $(roleNameNode)'
     outputTo: 'console'
     environmentServiceNameAWS: 'aws-for-terraform'
