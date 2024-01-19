@@ -33,6 +33,8 @@ steps:
     customCommand: 'import'
     commandOptions: 'aws_iam_role.eks_cluster $(roleNameCluster)'
     outputTo: 'console'
+    environmentServiceNameAWS: 'aws-for-terraform'
+
 - task: TerraformTaskV4@4
   inputs:
     provider: 'aws'
@@ -40,6 +42,8 @@ steps:
     customCommand: 'import'
     commandOptions: 'aws_iam_role.eks_node $(roleNameNode)'
     outputTo: 'console'
+    environmentServiceNameAWS: 'aws-for-terraform'
+
 
 - task: TerraformTaskV4@4
   inputs:
