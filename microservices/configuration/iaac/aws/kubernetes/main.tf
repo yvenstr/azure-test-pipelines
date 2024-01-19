@@ -2,6 +2,17 @@ provider "aws" {
   region = "us-west-2"
 }
 
+terraform {
+  backend "s3" {
+    bucket = "mybucket"       # Will be overridden from build
+    key    = "path/to/my/key" # Will be overridden from build
+    region = "us-east-1"
+  }
+}
+
+
+
+
 # Fetch the default VPC
 data "aws_vpc" "default" {
   default = true
