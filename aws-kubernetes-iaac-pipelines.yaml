@@ -29,13 +29,6 @@ steps:
     backendAWSBucketName: 'terraform-backend-state-yvenstr-123'
     backendAWSKey: 'kubernetes-dev.tfstate'
 
-- task: TerraformTaskV1@0
-  inputs:
-    provider: 'aws'
-    command: 'status'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/microservices/configuration/iaac/aws/kubernetes'
-    environmentServiceNameAWS: 'aws-for-terraform'
-
 - task: TerraformTaskV3@3
   inputs:
     provider: 'aws'
