@@ -1,24 +1,5 @@
-# aws --version
-# aws eks --region us-east-1 update-kubeconfig --name in28minutes-cluster
-# Uses default VPC and Subnet. Create Your Own VPC and Private Subnets for Prod Usage.
-# terraform-backend-state-in28minutes-123
-# AKIA4AHVNOD7OOO6T4KI
-
-
-terraform {
-  backend "s3" {
-    bucket = "mybucket" # Will be overridden from build
-    key    = "path/to/my/key" # Will be overridden from build
-    region = "us-east-1"
-  }
-}
-
-resource "aws_default_vpc" "default" {
-
-}
-
-data "aws_subnet_ids" "subnets" {
-  vpc_id = aws_default_vpc.default.id
+provider "aws" {
+  region = "us-west-2"
 }
 
 provider "kubernetes" {
@@ -28,39 +9,44 @@ provider "kubernetes" {
   version                = "~> 2.12"
 }
 
-module "in28minutes-cluster" {
-  source          = "terraform-aws-modules/eks/aws"
-  cluster_name    = "in28minutes-cluster"
-  cluster_version = "1.14"
-  #subnets         = ["subnet-3f7b2563", "subnet-4a7d6a45"] #CHANGE
-  subnet_ids = data.aws_subnet_ids.subnets.ids
-  vpc_id          = aws_default_vpc.default.id
+terraform {
+  backend "s3" {
+    bucket = "mybucket"       # Will be overridden from build
+    key    = "path/to/my/key" # Will be overridden from build
+    region = "us-east-1"
+  }
+}
 
-  #vpc_id         = "vpc-1234556abcdef"
+# Fetch the default VPC
+data "aws_vpc" "default" {
+  default = true
+}
 
-  self_managed_node_groups = [
-    {
-      instance_type = "t2.micro"
-      max_capacity  = 5
-      desired_capacity = 3
-      min_capacity  = 3
-    }
+
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+}
+
+
+
+
+resource "aws_eks_cluster" "example" {
+  name     = "my-cluster-for-testing-yvenstr"
+  role_arn = aws_iam_role.eks_cluster.arn
+
+  vpc_config {
+    subnet_ids =  toset([data.aws_subnets.default.ids[0],data.aws_subnets.default.ids[1]])
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.eks_cluster_AmazonEKSClusterPolicy,
+    aws_iam_role_policy_attachment.eks_cluster_AmazonEKSVPCResourceController,
   ]
 }
-
-data "aws_eks_cluster" "cluster" {
-  name = module.in28minutes-cluster.cluster_id
-}
-
-data "aws_eks_cluster_auth" "cluster" {
-  name = module.in28minutes-cluster.cluster_id
-}
-
-
-# We will use ServiceAccount to connect to K8S Cluster in CI/CD mode
-# ServiceAccount needs permissions to create deployments 
-# and services in default namespace
-resource "kubernetes_cluster_role_binding" "example" {
+resource "kubernetes_cluster_role_binding" "cluster_binding" {
   metadata {
     name = "fabric8-rbac"
   }
@@ -76,7 +62,75 @@ resource "kubernetes_cluster_role_binding" "example" {
   }
 }
 
-# Needed to set the default region
-provider "aws" {
-  region  = "us-east-1"
+resource "aws_iam_role" "eks_cluster" {
+  name = "my-cluster-eks-cluster-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "eks.amazonaws.com"
+        },
+        Action = "sts:AssumeRole"
+      },
+    ]
+  })
 }
+
+resource "aws_iam_role_policy_attachment" "eks_cluster_AmazonEKSClusterPolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+  role       = aws_iam_role.eks_cluster.name
+}
+
+resource "aws_iam_role_policy_attachment" "eks_cluster_AmazonEKSVPCResourceController" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
+  role       = aws_iam_role.eks_cluster.name
+}
+
+resource "aws_eks_node_group" "example" {
+  cluster_name    = aws_eks_cluster.example.name
+  node_group_name = "my-cluster-node-group"
+  node_role_arn   = aws_iam_role.eks_node.arn
+  subnet_ids      = toset([data.aws_subnets.default.ids[0],data.aws_subnets.default.ids[1]])
+
+  scaling_config {
+    desired_size = 3
+    max_size     = 3
+    min_size     = 1
+  }
+}
+
+resource "aws_iam_role" "eks_node" {
+  name = "my-cluster-eks-node-group-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        },
+        Action = "sts:AssumeRole"
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "eks_node_AmazonEKSWorkerNodePolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+  role       = aws_iam_role.eks_node.name
+}
+
+resource "aws_iam_role_policy_attachment" "eks_node_AmazonEKS_CNI_Policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+  role       = aws_iam_role.eks_node.name
+}
+
+resource "aws_iam_role_policy_attachment" "eks_node_AmazonEC2ContainerRegistryReadOnly" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = aws_iam_role.eks_node.name
+}
+
