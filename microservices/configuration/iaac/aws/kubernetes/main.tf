@@ -2,13 +2,6 @@ provider "aws" {
   region = "us-west-2"
 }
 
-provider "kubernetes" {
-  host                   = data.aws_eks_cluster.cluster.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
-  token                  = data.aws_eks_cluster_auth.cluster.token
-  version                = "~> 2.12"
-}
-
 terraform {
   backend "s3" {
     bucket = "mybucket"       # Will be overridden from build
@@ -45,21 +38,6 @@ resource "aws_eks_cluster" "example" {
     aws_iam_role_policy_attachment.eks_cluster_AmazonEKSClusterPolicy,
     aws_iam_role_policy_attachment.eks_cluster_AmazonEKSVPCResourceController,
   ]
-}
-resource "kubernetes_cluster_role_binding" "cluster_binding" {
-  metadata {
-    name = "fabric8-rbac"
-  }
-  role_ref {
-    api_group = "rbac.authorization.k8s.io"
-    kind      = "ClusterRole"
-    name      = "cluster-admin"
-  }
-  subject {
-    kind      = "ServiceAccount"
-    name      = "default"
-    namespace = "default"
-  }
 }
 
 resource "aws_iam_role" "eks_cluster" {
@@ -133,4 +111,3 @@ resource "aws_iam_role_policy_attachment" "eks_node_AmazonEC2ContainerRegistryRe
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
   role       = aws_iam_role.eks_node.name
 }
-
