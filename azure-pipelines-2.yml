@@ -1,0 +1,33 @@
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  terraformVersion: 'latest'
+
+  workingDirectory: '$(System.DefaultWorkingDirectory)/test-config-aws'
+
+
+stages:
+ - stage: Terraform Hello
+   jobs:
+   - job: init
+     steps:
+     - script: echo Starting a new proyect with Terraform!
+       displayName: 'Starting a new proyect with Terraform'
+ - stage: Terraform Init
+   jobs:
+   - job: Terraform Init
+     steps:
+     - task: TerraformTaskV2@2
+       inputs:
+        provider: 'aws'
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/test-config-aws'
+        backendServiceAWS: 'aws-for-terraform'
+        backendAWSBucketName: 'terraform-backend-state-yvenstr-123'
+        backendAWSKey: 'kubernetes-dev.tfstate' 
+
