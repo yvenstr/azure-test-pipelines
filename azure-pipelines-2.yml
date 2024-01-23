@@ -18,7 +18,7 @@ stages:
      steps:
      - script: echo Starting a new proyect with Terraform!
        displayName: 'Starting a new proyect with Terraform'
- - stage: Terraform Init
+ - stage: TerraformInit
    jobs:
    - job: TerraformI
      steps:
