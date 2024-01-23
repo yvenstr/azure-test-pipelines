@@ -12,7 +12,7 @@ variables:
 
 
 stages:
- - stage: Terraform Hello
+ - stage: Terraform_Hello
    jobs:
    - job: init
      steps:
@@ -20,7 +20,7 @@ stages:
        displayName: 'Starting a new proyect with Terraform'
  - stage: Terraform Init
    jobs:
-   - job: Terraform Init
+   - job: Terraform-Init
      steps:
      - task: TerraformTaskV2@2
        inputs:
